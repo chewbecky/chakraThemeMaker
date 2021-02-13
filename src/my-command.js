@@ -1,47 +1,74 @@
-import BrowserWindow from 'sketch-module-web-view'
-import { getWebview } from 'sketch-module-web-view/remote'
-import UI from 'sketch/ui'
+import BrowserWindow from "sketch-module-web-view";
+import { getWebview } from "sketch-module-web-view/remote";
+import UI from "sketch/ui";
+import sketch from "sketch";
 
-const webviewIdentifier = 'chakrathememaker.webview'
+const document = sketch.getSelectedDocument();
+const sharedTextStyles =
+  document.sharedTextStyles.length > 0 && document.sharedTextStyles;
+
+const sharedLayerStyles =
+  document.sharedLayerStyles.length > 0 && document.sharedTextStyles;
+
+let textStyles = {};
+let layerStyles = {};
+
+sharedTextStyles.forEach((textStyle) => {
+  textStyles[textStyle.name] = (({
+    fontSize,
+    fontFamily,
+    alignment,
+    lineHeight,
+    opacity,
+    kerning,
+  }) => {
+    return {
+      fontSize: fontSize + "px",
+      fontFamily: fontFamily,
+      textAlign: alignment,
+      lineHeight: lineHeight ? lineHeight + "px" : "normal",
+      opacity: opacity,
+      letterSpacing: kerning ? kerning + "px" : "normal",
+    };
+  })(textStyle.style);
+});
+
+// Webview stuff
+
+const webviewIdentifier = "chakrathememaker.webview";
 
 export default function () {
   const options = {
     identifier: webviewIdentifier,
-    width: 240,
-    height: 180,
-    show: false
-  }
+    width: 800,
+    height: 600,
+    show: false,
+  };
 
-  const browserWindow = new BrowserWindow(options)
+  const browserWindow = new BrowserWindow(options);
 
   // only show the window when the page has loaded to avoid a white flash
-  browserWindow.once('ready-to-show', () => {
-    browserWindow.show()
-  })
+  browserWindow.once("ready-to-show", () => {
+    browserWindow.show();
+  });
 
-  const webContents = browserWindow.webContents
+  const webContents = browserWindow.webContents;
 
-  // print a message when the page loads
-  webContents.on('did-finish-load', () => {
-    UI.message('UI loaded!')
-  })
-
-  // add a handler for a call from web content's javascript
-  webContents.on('nativeLog', s => {
-    UI.message(s)
+  // hand textStyles over to webview
+  webContents.on("nativeLog", (s) => {
+    UI.message(s);
     webContents
-      .executeJavaScript(`setRandomNumber(${Math.random()})`)
-      .catch(console.error)
-  })
-
-  browserWindow.loadURL(require('../resources/webview.html'))
+      .executeJavaScript(`sendData(${JSON.stringify(textStyles)})`)
+      .catch(console.error);
+  });
+  browserWindow.loadURL(require("../resources/webview.html"));
 }
 
 // When the plugin is shutdown by Sketch (for example when the user disable the plugin)
 // we need to close the webview if it's open
 export function onShutdown() {
-  const existingWebview = getWebview(webviewIdentifier)
+  const existingWebview = getWebview(webviewIdentifier);
   if (existingWebview) {
-    existingWebview.close()
+    existingWebview.close();
   }
 }
