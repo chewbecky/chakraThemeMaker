@@ -2,15 +2,20 @@ import BrowserWindow from "sketch-module-web-view";
 import { getWebview } from "sketch-module-web-view/remote";
 import UI from "sketch/ui";
 import sketch from "sketch";
+import { SharedStyle } from "sketch/dom";
+
+type TODO = any;
 
 const document = sketch.getSelectedDocument();
-const sharedTextStyles =
-  document.sharedTextStyles.length > 0 && document.sharedTextStyles;
+const sharedTextStyles: SharedStyle[] = document.sharedTextStyles.length
+  ? document.sharedTextStyles
+  : [];
 
-const sharedLayerStyles =
-  document.sharedLayerStyles.length > 0 && document.sharedTextStyles;
+const sharedLayerStyles: SharedStyle[] = document.sharedLayerStyles.length
+  ? document.sharedTextStyles
+  : [];
 
-let textStyles = {};
+const textStyles: Record<string, TODO> = {};
 let layerStyles = {};
 
 sharedTextStyles.forEach((textStyle) => {
