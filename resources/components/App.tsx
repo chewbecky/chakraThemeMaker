@@ -1,22 +1,35 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ThemeGenerator } from "./ThemeGenerator";
+
+const customTheme = extendTheme({
+  styles: {
+    global: {
+      "*, *:before, *:after": {
+        backgroundColor: "inherit",
+        fontFamily: 'inherit',
+      },
+      body: {
+        display: 'flex',
+        flexDir: 'column',
+        alignItems: 'stretch',
+        overflow: 'auto',
+        height: '100vh'
+      }
+    },
+  },
+});
+
+const client = new QueryClient();
 
 const App = () => {
-  const [data, setData] = useState("Hier erscheint gleich das Theme Object");
-
-  useEffect(() => {
-    function handleDataEvent(event: any) {
-      setData(JSON.stringify(event.detail.data));
-    }
-    window.addEventListener("send-data", handleDataEvent);
-    return function cleanup() {
-      window.removeEventListener("send-data", handleDataEvent);
-    };
-  });
-
   return (
-    <div>
-      <textarea readOnly value={data}></textarea>
-    </div>
+    <QueryClientProvider client={client}>
+      <ChakraProvider theme={customTheme}>
+        <ThemeGenerator />
+      </ChakraProvider>
+    </QueryClientProvider>
   );
 };
 

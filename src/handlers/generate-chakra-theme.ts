@@ -1,17 +1,14 @@
-import sketch, { SharedStyle } from "sketch";
-import BrowserWindow from "sketch-module-web-view";
-import { getWebview } from "sketch-module-web-view/remote";
-import UI from "sketch/ui";
+import sketch from "sketch";
+import { SharedStyle } from "sketch/dom";
+import { ChakraTheme } from "@chakra-ui/react";
 
-type TODO = any;
-
-function createTextStyles(): TODO {
+function createTextStyles() {
   const document = sketch.getSelectedDocument();
   const sharedTextStyles: SharedStyle[] = document.sharedTextStyles.length
     ? document.sharedTextStyles
     : [];
 
-  const textStyles: Record<string, TODO> = {};
+  const textStyles: ChakraTheme["textStyles"] = {};
 
   sharedTextStyles.forEach((textStyle) => {
     textStyles[textStyle.name] = (({
@@ -36,13 +33,13 @@ function createTextStyles(): TODO {
   return textStyles;
 }
 
-function createLayerStyles(): TODO {
+function createLayerStyles() {
   const document = sketch.getSelectedDocument();
   const sharedLayerStyles: SharedStyle[] = document.sharedLayerStyles.length
     ? document.sharedLayerStyles
     : [];
 
-  const layerStyles: Record<string, TODO> = {};
+  const layerStyles: ChakraTheme["layerStyles"] = {};
 
   // todo: Add gradient support and support for innerShadows and more than one shadow
 
@@ -73,44 +70,9 @@ function createLayerStyles(): TODO {
   return layerStyles;
 }
 
-// Webview stuff
-
-const webviewIdentifier = "chakrathememaker.webview";
-
-export default function () {
-  const options = {
-    identifier: webviewIdentifier,
-    width: 800,
-    height: 600,
-    show: false,
+export function generateChakraTheme() {
+  return {
+    textStyles: createTextStyles(),
+    layerStyles: createLayerStyles(),
   };
-
-  const browserWindow = new BrowserWindow(options);
-
-  // only show the window when the page has loaded to avoid a white flash
-  browserWindow.once("ready-to-show", () => {
-    browserWindow.show();
-  });
-
-  const webContents = browserWindow.webContents;
-
-  console.log(createLayerStyles());
-
-  // hand textStyles over to webview
-  webContents.on("nativeLog", (s) => {
-    UI.message("neu");
-    webContents
-      .executeJavaScript(`sendData(${JSON.stringify(createLayerStyles())})`)
-      .catch(console.error);
-  });
-  browserWindow.loadURL(require("../resources/webview.html"));
-}
-
-// When the plugin is shutdown by Sketch (for example when the user disable the plugin)
-// we need to close the webview if it's open
-export function onShutdown() {
-  const existingWebview = getWebview(webviewIdentifier);
-  if (existingWebview) {
-    existingWebview.close();
-  }
 }

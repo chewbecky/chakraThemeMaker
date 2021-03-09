@@ -3,9 +3,9 @@
   "bundleVersion": 1,
   "commands": [
     {
-      "name": "my-command",
-      "identifier": "chakrathememaker.my-command-identifier",
-      "script": "./my-command.ts",
+      "name": "Generate theme",
+      "identifier": "chakrathememaker.generate-chakra-theme",
+      "script": "./generate-chakra-theme.command.ts",
       "handlers": {
         "run": "onRun",
         "actions": {
@@ -15,9 +15,9 @@
     }
   ],
   "menu": {
-    "title": "chakraThemeMaker",
+    "title": "Chakra UI",
     "items": [
-      "chakrathememaker.my-command-identifier"
+      "chakrathememaker.generate-chakra-theme"
     ]
   }
 }
