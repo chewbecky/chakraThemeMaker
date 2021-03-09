@@ -1,6 +1,6 @@
 import BrowserWindow from "sketch-module-web-view";
 import { getWebview } from "sketch-module-web-view/remote";
-import {HandlerName, handlers} from "./handlers";
+import { HandlerName, handlers } from "./handlers";
 
 const webviewIdentifier = "chakrathememaker.webview";
 
